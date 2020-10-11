@@ -36,7 +36,7 @@
         android:id="@+id/txtnum2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="80dp"
+        android:layout_marginLeft="82dp"
         android:layout_marginTop="110dp"
         android:ems="10"
         android:hint="Numero"
