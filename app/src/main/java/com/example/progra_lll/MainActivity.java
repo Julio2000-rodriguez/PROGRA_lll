@@ -2,6 +2,11 @@ package com.example.progra_lll;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,70 +16,56 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    public Button btnCalcular;
-//RAMA
+    SensorManager sensorManager;
+    Sensor sensor;
+    SensorEventListener sensorEventListener;
+
+    @Override
+    protected void onPause() {
+        detener();
+        super.onPause();
+    }
+    @Override
+    protected void onResume() {
+        iniciar();
+        super.onResume();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnCalcular = (Button)findViewById(R.id.btnCalcular);
-        btnCalcular.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                procesar(view);
-            }
-        });
-    }
-    public void procesar(View vista){
-        try {
-            RadioGroup optOperaciones = (RadioGroup) findViewById(R.id.optOperaciones);
-            Spinner cboOperaciones = (Spinner)findViewById(R.id.cboOperaciones);
-
-            TextView tempVal = (TextView) findViewById(R.id.txtnum1);
-            double num1 = Double.parseDouble(tempVal.getText().toString());
-
-            tempVal = (TextView) findViewById(R.id.txtnum2);
-            double num2 = Double.parseDouble(tempVal.getText().toString());
-
-            double respuesta = 0;
-            //Este es para el radiogroup y los radiobuttons
-            switch (optOperaciones.getCheckedRadioButtonId()) {
-                case R.id.optSuma:
-                    respuesta = num1 + num2;
-                    break;
-                case R.id.optResta:
-                    respuesta = num1 - num2;
-                    break;
-                case R.id.optMultiplicar:
-                    respuesta = num1 * num2;
-                    break;
-                case R.id.optDivision:
-                    respuesta = num1 / num2;
-                    break;
-            }
-            //Este es para el spinNNer... -> Combobox.
-            switch (cboOperaciones.getSelectedItemPosition()){
-                case 1: //suma
-                    respuesta = num1 + num2;
-                    break;
-                case 2: //resta
-                    respuesta = num1 - num2;
-                    break;
-                case 3: //multiplicacion
-                    respuesta = num1 * num2;
-                    break;
-                case 4: //division
-                    respuesta = num1 / num2;
-                    break;
-            }
-            tempVal = (TextView) findViewById(R.id.lblRespuesta);
-            tempVal.setText("Respuesta: " + respuesta);
-        }catch (Exception err){
-            TextView temp = (TextView) findViewById(R.id.lblRespuesta);
-            temp.setText("Por favor ingrese los numeros correspondientes.");
-
-            Toast.makeText(getApplicationContext(),"Por favor ingrese los numeros.",Toast.LENGTH_LONG).show();
+        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        if(sensor==null){
+            finish();
         }
+        final TextView lblSensorProximidad = (TextView)findViewById(R.id.lblSensorProximidad);
+        sensorEventListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                if( sensorEvent.values[0]>=0 && sensorEvent.values[0]<=4 ){
+                    getWindow().getDecorView().setBackgroundColor(Color.RED);
+                    lblSensorProximidad.setText("LEJOS: "+ sensorEvent.values[0]);
+                } else if(sensorEvent.values[0]>4 && sensorEvent.values[0]<=8 ){
+                    getWindow().getDecorView().setBackgroundColor(Color.YELLOW);
+                    lblSensorProximidad.setText("INTERMEDIO: "+ sensorEvent.values[0]);
+                } else{
+                    getWindow().getDecorView().setBackgroundColor(Color.GREEN);
+                    lblSensorProximidad.setText("CERCA: "+ sensorEvent.values[0]);
+                }
+            }
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+        };
+        iniciar();
+    }
+    void iniciar(){
+        sensorManager.registerListener(sensorEventListener, sensor, 2000*1000);
+    }
+    void detener(){
+        sensorManager.unregisterListener(sensorEventListener);
     }
 }
