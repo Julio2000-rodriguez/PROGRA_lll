@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     respuesta = num1 / num2;
                     break;
             }
-            //Este es para el spiner... -> Combobox.
+            //Este es para el spinNNer... -> Combobox.
             switch (cboOperaciones.getSelectedItemPosition()){
                 case 1: //suma
                     respuesta = num1 + num2;
